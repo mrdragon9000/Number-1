@@ -1,3 +1,8 @@
+<!DOCTYPE HTML5>
+<HTML>
+<head>
+<title> Calendar </title>
+<meta charset="UTF-8">
 <style>
 td {
 	border : 1px solid black;
@@ -9,35 +14,59 @@ table {
 a {
 	text-decoration:none;
 }
+table {
+	margin-right: auto;
+    margin-left: auto;	
+}
+#calendar 
+{
+	text-align:center; 
+}
 </style>
+</head>
+<body>
 <?php 
+function getDates(&$year,&$month)
+{
+	$year = str_replace(",",".",$year);
+	$month = str_replace(",",".",$month);
+	if( 
+	    ( (!isset($year)) or (!isset($month)) ) ||
+	    ( (empty($year)) or (empty($month)) ) ||
+	    ( (!is_numeric($month)) or (!is_numeric($year)) ) || 
+	    ( ($year < 0) or ($month < 0) ) ||
+		( ($month > 12) or ($month < 1) or ($year < 0) )
+	  ) 
+	{
+		$month = date("m");
+		$year = date("Y");
+		$date = strtotime($year."-".$month);
+		return($date);
+	} 
+	else
+	{
+		$date = strtotime((integer)$year."-".(integer)$month);
+        return($date);
+	}
+}
 function calendar( $year = "",$month = "" ){
-		if(($year == null) or ($month == null)) {$month = date("m",time());
-		$year = date("Y",time()); }
-
-	if(($year > 0) and ($month > 0)){$year = (integer)$year;
-	$month = (integer)$month;}
-	$year = preg_replace("/^0{2,}/","",$year);
-	$month = preg_replace("/^0{2,}/","",$month);
-    $date = (($year == "") and ($month == "")) ? time() : strtotime((integer)$year."-".(integer)$month); 
-	if(isset($year) and isset($month))
-		if(($month > 12) or ($month < 1) or ($year < 0) or (is_float($year + $month)) or (!is_numeric($year)) or (!is_numeric($month))) {echo("<center><h1> Введён не верный месяц или год</h1></center>");  return(false);}
-	
-	#-----------------------------------------------
-	echo('<bold><center><h2> <a href="http://work.freesa.ru/file.php?year=');
-	if($month > 1)    echo($year.'&month='.($month - 1).'">< </a>');
-	        else echo(($year - 1).'&month=12">< </a>');
+	$date = getDates($year,$month);
+	#-----------------------------------------------Вывод стрелочек
+	$result .='<div id="calendar"><bold><h2><a href="http://work.freesa.ru/file.php?year=';
+	if($month > 1)    $result .= $year.'&month='.($month - 1).'">< </a>';
+	        else $result .=($year - 1).'&month=12">< </a>';
 	$monthName = date(" F ",$date);
-	echo( $monthName );
-	echo('<a href="http://work.freesa.ru/file.php?year=');
-	if($month < 12)    echo($year.'&month='.($month + 1).'">> </a>');
-	        else echo(($year + 1).'&month=1">> </a>');
+	$result .= $monthName ;
+	$result .='<a href="http://work.freesa.ru/file.php?year=';
+	if($month < 12)    $result .=$year.'&month='.($month + 1).'">> </a>';
+	        else $result .=($year + 1).'&month=1">> </a>';
 			
-    echo('<a href="http://work.freesa.ru/file.php?year='.($year - 1).'&month='.$month.'">< </a>');
-	echo($year);
-	echo('<a href="http://work.freesa.ru/file.php?year='.($year + 1).'&month='.$month.'">> </a>');
-	echo("</h2><center></bold>");
-    $result = "
+    $result .='<a href="http://work.freesa.ru/file.php?year='.($year - 1).'&month='.$month.'">< </a>';
+	$result .= $year;
+	$result .='<a href="http://work.freesa.ru/file.php?year='.($year + 1).'&month='.$month.'">> </a>';
+	$result .="</h2></bold>";
+	#-------------------------------------------------Вывод таблицы
+    $result .= "
     <table>
 	<tr>
     ";
@@ -60,12 +89,14 @@ function calendar( $year = "",$month = "" ){
      		
 		if($i % 7 == 0) $result .= "</tr>\r\n";
 		if(($i != 35) && ($i % 7 == 0)) $result .= "<tr>\r\n";	
-
-
 	}
-	$result .= "</table></center>";
+	$result .= "</table></div>";
 	return($result);
 }
 echo(calendar($_GET["year"],$_GET["month"]));
 
+
+    
 ?>
+</body>
+</html>
